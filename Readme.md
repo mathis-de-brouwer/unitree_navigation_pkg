@@ -1,124 +1,125 @@
-# Unitree Navigation Package User Guide
+# Unitree Navigation Package
 
-This document explains how to use the unitree_navigation_pkg for computer vision-based navigation with a TurtleBot3 in various configurations.
+The `unitree_navigation_pkg` enables computer vision-based navigation for TurtleBot3 robots using YOLOv8 segmentation models. It supports both simulation in Gazebo and real-world applications with physical cameras or video files.
 
 ## Table of Contents
+
 1. [System Overview](#system-overview)
 2. [Installation Prerequisites](#installation-prerequisites)
 3. [Basic Usage](#basic-usage)
-4. [Using Physical Camera](#using-physical-camera)
-5. [Using Video File](#using-video-file)
+4. [Using a Physical Camera](#using-a-physical-camera)
+5. [Using a Video File](#using-a-video-file)
 6. [Advanced Configuration](#advanced-configuration)
 7. [Troubleshooting](#troubleshooting)
 
 ## System Overview
 
-The unitree_navigation_pkg provides:
-- Path detection using YOLOv8 segmentation models
-- Computer vision-based navigation for TurtleBot3 in Gazebo simulation
-- Support for both physical cameras and pre-recorded videos
-- Visualization of the segmentation and navigation decision making
+This package offers:
+
+- Path detection using YOLOv8 segmentation models.
+- Computer vision-based navigation for TurtleBot3 in Gazebo simulation.
+- Support for both physical cameras and pre-recorded videos.
+- Visualization of segmentation and navigation decision-making processes.
 
 ## Installation Prerequisites
 
-Ensure you have the following installed:
+Ensure the following are installed:
+
 - ROS 2 Humble
 - Gazebo 11
 - TurtleBot3 packages
-- OpenCV
-- Ultralytics YOLOv8
+- YOLOv8 segmentation models
 
-```bash
-# Install YOLOv8
-pip install ultralytics
+## Basic Usage
 
-# Install other dependencies
-sudo apt install ros-humble-turtlebot3-gazebo ros-humble-turtlebot3-description 
-sudo apt install ros-humble-cv-bridge python3-opencv
+1. **Clone the Repository:**
 
-Basic Usage
-1. Start TurtleBot3 in Gazebo (Required for all methods)
-In a terminal, launch the TurtleBot3 in Gazebo:
+   ```bash
+   cd ~/ros2_ws/src
+   git clone https://github.com/mathis-de-brouwer/unitree_navigation_pkg.git
+   ```
 
-export TURTLEBOT3_MODEL=waffle_pi
-ros2 launch turtlebot3_gazebo empty_world.launch.py
+2. **Install Dependencies:**
 
-2. Check if TurtleBot3 responds to commands
-Test direct control with:
+   ```bash
+   cd ~/ros2_ws
+   rosdep install --from-paths src --ignore-src -r -y
+   ```
 
-ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.2, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}'
+3. **Build the Package:**
 
-Using Physical Camera
-This method uses your physical camera for real-time path detection.
+   ```bash
+   colcon build
+   ```
 
-Launch with Camera Bridge
-cd ~/ros2_ws
-source install/setup.bash
-ros2 launch unitree_navigation_pkg simple_camera_nav.launch.py
+4. **Source the Workspace:**
 
-Options:
-Different camera ID: ros2 launch unitree_navigation_pkg simple_camera_nav.launch.py camera_id:=1
-Different model: ros2 launch unitree_navigation_pkg simple_camera_nav.launch.py model_path:=/path/to/model.pt
-Change command topic: ros2 launch unitree_navigation_pkg simple_camera_nav.launch.py cmd_topic:=/custom/cmd_vel
-Using Video File
-This method uses a pre-recorded video for navigation testing.
+   ```bash
+   source install/setup.bash
+   ```
 
-Launch with Video Navigation
+5. **Launch the Simulation:**
 
-cd ~/ros2_ws
-source install/setup.bash
-ros2 launch unitree_navigation_pkg unitree_navigation.launch.py use_camera:=false
-Options:
-Custom video file: ros2 launch unitree_navigation_pkg unitree_navigation.launch.py use_camera:=false video_path:=/path/to/your/video.mp4
-Different model: ros2 launch unitree_navigation_pkg unitree_navigation.launch.py use_camera:=false model_path:=/path/to/model.pt
-Advanced Configuration
-Launch Just Segmentation Node
-If you only want to test the segmentation without navigation:
+   ```bash
+   ros2 launch unitree_navigation_pkg simulation_launch.py
+   ```
 
-ros2 run unitree_navigation_pkg segmentation_node
+## Using a Physical Camera
 
-Launch Just Navigation Node
-If you want to run the navigation node separately:
+1. **Connect the Camera:**
 
-ros2 run unitree_navigation_pkg navigation_node
-Launch Video Tester Only
-To test with a video without controlling a robot:
-ros2 launch unitree_navigation_pkg gazebo_navigation.launch.py
-Full Integration (Gazebo + Video)
-To launch both Gazebo and video-based navigation:
+   Ensure your physical camera is connected and recognized by the system.
 
-cd ~/ros2_ws
-colcon build --packages-select unitree_navigation_pkg
-source install/setup.bash
-# First terminal: Launch Gazebo
-export TURTLEBOT3_MODEL=waffle_pi
-ros2 launch turtlebot3_gazebo empty_world.launch.py
+2. **Launch the Camera Node:**
 
-# Second terminal: Launch Video Navigation
-ros2 launch unitree_navigation_pkg unitree_navigation.launch.py use_camera:=false
+   ```bash
+   ros2 launch unitree_navigation_pkg camera_launch.py
+   ```
 
-Component-Specific Commands
-Camera Bridge:
-# Run camera bridge only with default camera (0)
-ros2 run unitree_navigation_pkg camera_bridge
+3. **Start Navigation:**
 
-# Run camera bridge with a specific camera
-ros2 run unitree_navigation_pkg camera_bridge --ros-args -p camera_id:=1
+   ```bash
+   ros2 launch unitree_navigation_pkg navigation_launch.py
+   ```
 
-# Run camera bridge with a specific model
-ros2 run unitree_navigation_pkg camera_bridge --ros-args -p model_path:=/path/to/model.pt
-Video Navigation Tester:
-# Run with default video
-ros2 run unitree_navigation_pkg video_navigation_tester
+## Using a Video File
 
-# Run with specific video
-ros2 run unitree_navigation_pkg video_navigation_tester --ros-args -p video_path:=/path/to/video.mp4
+1. **Specify the Video Path:**
 
-# Run with specific playback speed (half speed)
-ros2 run unitree_navigation_pkg video_navigation_tester --ros-args -p playback_speed:=0.5
-Navigation Node:
-# Run with default parameters
-ros2 run unitree_navigation_pkg navigation_node
+   Edit the `video_launch.py` file to set the path to your video file.
 
-# Run with custom speed and turning angle
-ros2 run unitree_navigation_pkg navigation_node --ros-args -p constant_speed:=0.3 -p turning_angle:=0.5
+2. **Launch the Video Node:**
+
+   ```bash
+   ros2 launch unitree_navigation_pkg video_launch.py
+   ```
+
+3. **Start Navigation:**
+
+   ```bash
+   ros2 launch unitree_navigation_pkg navigation_launch.py
+   ```
+
+## Advanced Configuration
+
+- **Model Parameters:**
+
+  Adjust the YOLOv8 model parameters in the `config` directory to fine-tune detection performance.
+
+- **Navigation Settings:**
+
+  Modify navigation parameters in the `navigation` directory to suit different environments or robot configurations.
+
+## Troubleshooting
+
+- **Camera Not Detected:**
+
+  Ensure the camera is properly connected and recognized by the system. Use `ls /dev/video*` to check.
+
+- **Simulation Issues:**
+
+  Verify that Gazebo is installed correctly and that the TurtleBot3 model is properly configured.
+
+- **Model Loading Errors:**
+
+  Confirm that the YOLOv8 models are placed in the correct directory and that the paths in the configuration files are accurate.
