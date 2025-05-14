@@ -6,22 +6,26 @@ import cv2
 import numpy as np
 import time
 from ultralytics import YOLO
+import os
+from ament_index_python.packages import get_package_share_directory
 
 class ROS2YOLOSegmenter(Node):
     def __init__(self):
         super().__init__('ros2_yolo_segmenter')
 
+        # Get package directory to locate the model
+        pkg_dir = get_package_share_directory('unitree_navigation_pkg')
+        model_path = os.path.join(pkg_dir, 'models', 'botopiaRealCam.pt')
+        
+        self.get_logger().info(f'Loading model from: {model_path}')
+
         # Load YOLOv8 segmentation model
-        self.model = YOLO('/home/ththis/ros2_ws/src/unitree_navigation_pkg/models/gangpad.pt', verbose=True)
+        self.model = YOLO(model_path, verbose=True)
 
         # Define colors per class (BGR format)
         self.classColors = {    
             'gangpad': (0, 255, 0),       # Green instead of Gray
-            # 'crosswalk': (0, 255, 255),      # Yellow
-            # 'atomium': (180, 105, 255),      # Pink
-            # 'house': (0, 0, 255),            # Red
-            # 'trafficlight': (0, 255, 0),     # Green
-            # 'parking': (255, 0, 0),          # Blue   
+            # Add any classes from botopiaRealCam.pt model
         }
 
         # Video capture setup (0 for webcam or provide video file path)
