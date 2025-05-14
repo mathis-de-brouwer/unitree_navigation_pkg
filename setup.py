@@ -14,21 +14,23 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'models'), glob('models/*.pt')),
-        (os.path.join('share', package_name, 'models'), glob('models/*.mp4')),  # Add this line to include mp4 files
+        (os.path.join('share', package_name, 'models'), glob('models/*.mp4')),
+        (os.path.join('share', package_name, 'worlds'), glob('worlds/*.world')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='your_name',
-    maintainer_email='your_email@example.com',
-    description='TODO: Package description',
+    maintainer='Mathis de Brouwer',
+    maintainer_email='debrouwer.ehb@gmail.com',
+    description='Simple navigation for Unitree robot using computer vision',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'navigation_node = unitree_navigation_pkg.navigation_node:main',
             'segmentation_node = unitree_navigation_pkg.segmentation_node:main',
-            'websocket_server = unitree_navigation_pkg.websocket_server:main',
             'video_navigation_tester = unitree_navigation_pkg.video_navigation_tester:main',
+            'websocket_server = unitree_navigation_pkg.websocket_server:main',
+            'camera_bridge = unitree_navigation_pkg.camera_bridge:main',
         ],
     },
 )
